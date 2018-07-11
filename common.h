@@ -1,6 +1,13 @@
 #ifndef _Z_COMMON_H
 #define _Z_COMMON_H
 
+#include <stdio.h>
+#ifdef _WINDOWS
+#include <windows.h>
+#else
+#include <stddef.h>
+#include <errno.h>
+#endif
 
 #define		SUCCEED		0
 #define		FAIL		-1
@@ -14,6 +21,7 @@
 
 #define Z_KIBIBYTE		1024
 #define MAX_ID_LEN		64
+#define MAX_FILEPATH_LEN    256	
 #define MAX_STRING_LEN		2048	
 #define MAX_BUFFER_LEN		65536
 #define MAX_ZBX_HOSTNAME_LEN	128
