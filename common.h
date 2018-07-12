@@ -7,6 +7,8 @@
 #else
 #include <stddef.h>
 #include <errno.h>
+#include <pthread.h>
+#include <unistd.h>
 #endif
 
 #define		SUCCEED		0

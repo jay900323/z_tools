@@ -22,7 +22,7 @@
 #define TSERVER_OPTION_LOGTYPE_FILE		"file"
 #define TSERVER_OPTION_LOGTYPE_CONSOLE	"console"
 #define TSERVER_EVENT_SOURCE			"tserver_sys_event"
-#define MAX_STRING_LEN   256
+#define MAX_PATH   260
 #define CONFIG_LOG_FILE_SIZE  10*1024*1024
 #define MAX_BACKUP_FILE    5
 #define ZBX_MESSAGE_BUF_SIZE	4096

@@ -1,5 +1,5 @@
 ﻿#include "zlog.h"
-#include "pthread.h"
+#include "thread_mutex.h"
 
 #ifdef _WIN32
 #include <stdarg.h>
@@ -10,43 +10,22 @@
 static HANDLE		system_log_handle = INVALID_HANDLE_VALUE;
 #endif
 
-static char		syslog_app_name[256] = {"fetchxml_log"};
+static char		syslog_app_name[256] = {"zlog"};
 static char		log_filename[256];
 static int		log_type = LOG_TYPE_UNDEFINED;
 static int		log_level = ZLOG_LEVEL_WARN;
 static int backup_file;
-static pthread_mutex_t	log_access;
-#define LOCK_LOG	pthread_mutex_lock(&log_access)
-#define UNLOCK_LOG	pthread_mutex_unlock(&log_access)
+
+//static pthread_mutex_t	log_access;
+//#define LOCK_LOG	pthread_mutex_lock(&log_access)
+//#define UNLOCK_LOG	pthread_mutex_unlock(&log_access)
 
 
+z_thread_mutex_t log_access;
+#define LOCK_LOG	z_thread_mutex_lock(&log_access)
+#define UNLOCK_LOG	z_thread_mutex_unlock(&log_access)
 
-#ifndef _WIN32
-static sigset_t	orig_mask;
 
-static void	lock_log(void)
-{
-	sigset_t	mask;
-
-	sigemptyset(&mask);
-	sigaddset(&mask, SIGUSR1);
-	sigaddset(&mask, SIGTERM);	/* block SIGTERM, SIGINT to prevent deadlock on log file mutex */
-	sigaddset(&mask, SIGINT);
-
-	if (0 > sigprocmask(SIG_BLOCK, &mask, &orig_mask))
-		zbx_error("cannot set sigprocmask to block the user signal");
-
-	LOCK_LOG;
-}
-
-static void	unlock_log(void)
-{
-	UNLOCK_LOG;
-
-	if (0 > sigprocmask(SIG_SETMASK, &orig_mask, NULL))
-		zbx_error("cannot restore sigprocmask");
-}
-#else
 static void	lock_log(void)
 {
 	LOCK_LOG;
@@ -56,7 +35,7 @@ static void	unlock_log(void)
 {
 	UNLOCK_LOG;
 }
-#endif
+
 
 void	zbx_handle_log(void)
 {
@@ -75,7 +54,7 @@ int	zlog_open_log(int type, int level, const char *filename)
 	FILE	*log_file = NULL;
 	log_type = type;
 	log_level = level;
-
+	
 	if (LOG_TYPE_SYSTEM == type)
 	{
 #ifdef __linux__
@@ -84,13 +63,13 @@ int	zlog_open_log(int type, int level, const char *filename)
 	}
 	else if (LOG_TYPE_FILE == type)
 	{
-		if (MAX_STRING_LEN <= strlen(filename))
+		if (MAX_PATH <= strlen(filename))
 		{
 			printf("too long path for logfile");
 			return -1;
 		}
-
-		if (0 != pthread_mutex_init(&log_access, NULL))
+		log_access.type = thread_mutex_critical_section;
+		if (0 != z_thread_mutex_create(&log_access, Z_THREAD_MUTEX_UNNESTED))
 		{
 			printf("unable to create mutex for log file");
 			return -1;
@@ -106,7 +85,7 @@ int	zlog_open_log(int type, int level, const char *filename)
 	}
 	else if (LOG_TYPE_CONSOLE == type)
 	{
-		if (0 != pthread_mutex_init(&log_access, NULL))
+		if (0 != z_thread_mutex_create(&log_access, Z_THREAD_MUTEX_UNNESTED))
 		{
 			printf("unable to create mutex for standard output");
 			return -1;
@@ -130,7 +109,7 @@ void	zabbix_close_log(void)
 	}
 	else if (LOG_TYPE_FILE == log_type || LOG_TYPE_CONSOLE == log_type)
 	{
-		pthread_mutex_destroy(&log_access);
+		z_thread_mutex_destroy(&log_access);
 	}
 }
 
@@ -189,7 +168,7 @@ static void	rotate_log(const char *filename)
 	
 	if (CONFIG_LOG_FILE_SIZE < new_size)
 	{
-		char	filename_old[MAX_STRING_LEN];
+		char	filename_old[MAX_PATH];
 
 		strcpy(filename_old, filename);
 		strcat(filename_old, ".old");
@@ -254,7 +233,7 @@ void zlog(const char *file, long line, int level,const char *format, ...)
 
 	if (LOG_TYPE_CONSOLE == log_type)
 	{
-		lock_log();
+		
 
 		time_t t = time(0);   
 		char tmp[64];   
@@ -266,6 +245,8 @@ void zlog(const char *file, long line, int level,const char *format, ...)
 		va_start(ap, format);
 		vsnprintf (buf, 4096, format, ap);
 		va_end(ap);
+
+		lock_log();
 
 		fprintf(stdout, "%s %s (%s:%d) %s\n", tmp, get_log_level(level), file, line, buf);
 
