@@ -203,6 +203,8 @@ void zlog(const char *file, long line, int level,const char *format, ...)
 	wchar_t		thread_id[20], *strings[2];
 #endif
 
+	if(level < log_level) return;
+	
 	if (LOG_TYPE_FILE == log_type)
 	{
 		lock_log();

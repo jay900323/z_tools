@@ -10,7 +10,7 @@ static Z_THREAD_ENTRY(z_linux_thread_entry, args)
 {
 	zbx_thread_args_t	*thread_args = (zbx_thread_args_t *)args;
 
-	return thread_args->entry(thread_args);
+	return thread_args->entry(thread_args->args);
 }
 
 #else
@@ -21,7 +21,7 @@ static Z_THREAD_ENTRY(zbx_win_thread_entry, args)
 	{
 		zbx_thread_args_t	*thread_args = (zbx_thread_args_t *)args;
 
-		return thread_args->entry(thread_args);
+		return thread_args->entry(thread_args->args);
 	}
 	__except(EXCEPTION_CONTINUE_SEARCH)
 	{
@@ -30,14 +30,14 @@ static Z_THREAD_ENTRY(zbx_win_thread_entry, args)
 }
 #endif
 
-Z_THREAD_HANDLE	z_thread_start(Z_THREAD_ENTRY_POINTER(handler), zbx_thread_args_t *thread_args)
+Z_THREAD_HANDLE	z_thread_start(zbx_thread_args_t *thread_args)
 {
 	Z_THREAD_HANDLE	thread = Z_THREAD_HANDLE_NULL;
 
 #ifdef _WINDOWS
 	unsigned		thrdaddr;
 
-	thread_args->entry = handler;
+	//thread_args->entry = handler;
 	/* NOTE: _beginthreadex returns 0 on failure, rather than 1 */
 	if (0 == (thread = (Z_THREAD_HANDLE)_beginthreadex(NULL, 0, zbx_win_thread_entry, thread_args, 0, &thrdaddr)))
 	{
@@ -45,7 +45,7 @@ Z_THREAD_HANDLE	z_thread_start(Z_THREAD_ENTRY_POINTER(handler), zbx_thread_args_
 		thread = (Z_THREAD_HANDLE)Z_THREAD_ERROR;
 	}
 #else
-	thread_args->entry = handler;
+	//thread_args->entry = handler;
 	if(0 != pthread_create(&thread, NULL, z_linux_thread_entry, thread_args)){
 		//zlog_error("failed to create a thread: %s", strerror(errno));
 		thread = (Z_THREAD_HANDLE)Z_THREAD_ERROR;

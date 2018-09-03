@@ -29,6 +29,15 @@
 #define MAX_ZBX_HOSTNAME_LEN	128
 #define MAX_EXECUTE_OUTPUT_LEN	(512 * Z_KIBIBYTE)
 
+#define z_calloc(old, nmemb, size)	z_calloc2(__FILE__, __LINE__, old, nmemb, size)
+#define z_malloc(old, size)		z_malloc2(__FILE__, __LINE__, old, size)
+#define z_realloc(src, size)		z_realloc2(__FILE__, __LINE__, src, size)
+#define z_strdup(old, str)		z_strdup2(__FILE__, __LINE__, old, str)
+
+void    *z_calloc2(const char *filename, int line, void *old, size_t nmemb, size_t size);
+void    *z_malloc2(const char *filename, int line, void *old, size_t size);
+void    *z_realloc2(const char *filename, int line, void *old, size_t size);
+char    *z_strdup2(const char *filename, int line, char *old, const char *str);
 
 #ifndef MAX
 #	define MAX(a, b) ((a) > (b) ? (a) : (b))
