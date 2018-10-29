@@ -1,6 +1,10 @@
 #ifndef _THREAD_LOCK_H
 #define _THREAD_LOCK_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+	
 #include "common.h"
 
 
@@ -38,4 +42,9 @@ int z_thread_mutex_trylock(z_thread_mutex_t *mutex);
 int z_thread_mutex_unlock(z_thread_mutex_t *mutex);
 int z_thread_mutex_destroy(z_thread_mutex_t *mutex);
 
+	
+	
+#ifdef __cplusplus
+}
+#endif
 #endif

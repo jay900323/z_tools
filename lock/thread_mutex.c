@@ -2,7 +2,7 @@
 
 int z_thread_mutex_create(z_thread_mutex_t *mutex, unsigned int flags)
 {
-	int rc = 0;
+	int rv = 0;
 
 	if(mutex == NULL){
 		return -1;

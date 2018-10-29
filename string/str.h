@@ -1,8 +1,11 @@
 #ifndef _Z_STR_H
 #define _Z_STR_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-typedef unsigned int size_t;
+//typedef unsigned int size_t;
 
 /** @see isalnum */
 #define z_isalnum(c) (isalnum(((unsigned char)(c))))
@@ -65,7 +68,7 @@ char *z_strstr(char *s1, char *s2);
 *          siz <= strlen(dst)).                                              *
 *                                                                            *
 ******************************************************************************/
-void	z_strlcat(char *dst, const char *src, size_t dst_size)'
+void	z_strlcat(char *dst, const char *src, size_t dst_size);
 
 int z_strcasecmp(const char *a, const char *b);
 
@@ -74,5 +77,9 @@ int z_strncasecmp(const char *a, const char *b, size_t n);
 char *z_nextline(char **buf);
 
 int z_strendswith(char *dest, const char *sep);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

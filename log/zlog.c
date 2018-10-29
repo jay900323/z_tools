@@ -1,9 +1,12 @@
 ﻿#include "zlog.h"
 #include "thread_mutex.h"
+#include <stdarg.h>
 
 #ifdef _WIN32
 #include <stdarg.h>
 #include <Windows.h>
+#elif __linux__
+#include <syslog.h>
 #endif
 
 #ifdef _WIN32
@@ -68,7 +71,7 @@ int	zlog_open_log(int type, int level, const char *filename)
 			printf("too long path for logfile");
 			return -1;
 		}
-		log_access.type = thread_mutex_critical_section;
+		//log_access.type = thread_mutex_critical_section;
 		if (0 != z_thread_mutex_create(&log_access, Z_THREAD_MUTEX_UNNESTED))
 		{
 			printf("unable to create mutex for log file");
@@ -235,8 +238,6 @@ void zlog(const char *file, long line, int level,const char *format, ...)
 
 	if (LOG_TYPE_CONSOLE == log_type)
 	{
-		
-
 		time_t t = time(0);   
 		char tmp[64];   
 		char buf[4096] = {0};
@@ -247,7 +248,7 @@ void zlog(const char *file, long line, int level,const char *format, ...)
 		va_start(ap, format);
 		vsnprintf (buf, 4096, format, ap);
 		va_end(ap);
-
+		
 		lock_log();
 
 		fprintf(stdout, "%s %s (%s:%d) %s\n", tmp, get_log_level(level), file, line, buf);

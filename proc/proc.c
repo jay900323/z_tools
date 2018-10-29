@@ -110,14 +110,13 @@ int z_proc_create(z_proc_t *proc_t, const char *progname, const char * const *ar
         attr->env = empty_envp;
     }
 
-
 	if (attr && attr->currdir) {
         if (access(attr->currdir, X_OK) == -1) {
             /* chdir() in child wouldn't have worked */
             return errno;
         }
     }
-
+	
 	if ((proc_t->pid = fork()) < 0) {
         return errno;
     }
@@ -172,7 +171,7 @@ int z_proc_create(z_proc_t *proc_t, const char *progname, const char * const *ar
     	exit(-1);
 
 	}
-
+	return 0;
 #endif
 }
 
@@ -234,7 +233,7 @@ int z_proc_wait(z_proc_t *proc, int waithow)
     int exit_int;
 
     if(waithow != Z_PROC_WAIT){
-    	/* WNOHANG option means still wait until process exit */
+    	/* WNOHANG option means return not wait until process exit */
     	waitpid_options |= WNOHANG;
     }
     do{

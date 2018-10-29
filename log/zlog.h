@@ -1,7 +1,10 @@
 ﻿#ifndef _ZLOG_H
 #define _ZLOG_H
 
-#ifdef _WIN32
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 
 #define ZLOG_LEVEL_DEBUG 0
@@ -45,6 +48,9 @@ int	zlog_open_log(int type, int level, const char *filename);
 	zlog(__FILE__, __LINE__, ZLOG_LEVEL_ERROR, __VA_ARGS__)
 #define zlog_fatal(...) \
 	zlog(__FILE__, __LINE__, ZLOG_LEVEL_FATAL, __VA_ARGS__)
+		
+#ifdef __cplusplus
+}
 #endif
 #endif
 

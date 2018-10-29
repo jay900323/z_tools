@@ -33,7 +33,7 @@ extern "C" {
 		_endthreadex((unsigned int)(status)); \
 		return ((unsigned)(status))
 
-#define z_sleep(sec) SleepEx(((DWORD)(sec)) * ((DWORD)1000), TRUE)
+//#define z_sleep(sec) SleepEx(((DWORD)(sec)) * ((DWORD)1000), TRUE)
 
 #define z_thread_kill(h) QueueUserAPC(Z_EndThread, h, 0);
 
@@ -55,7 +55,7 @@ extern "C" {
 		pthread_exit((int)(status)); \
 		return ((unsigned)(status))
 
-#define z_sleep(sec) sleep((sec))
+//#define z_sleep(sec) sleep((sec))
 
 #define z_thread_kill(h) pthread_kill(h, SIGQUIT);
 
@@ -68,6 +68,7 @@ typedef struct
 }zbx_thread_args_t;
 
 Z_THREAD_HANDLE	z_thread_start(zbx_thread_args_t *thread_args);
+	
 int			z_thread_wait(Z_THREAD_HANDLE thread);
 long int		z_get_thread_id();
 int			z_thread_close(Z_THREAD_HANDLE thread);

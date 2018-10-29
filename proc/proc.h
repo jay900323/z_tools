@@ -1,9 +1,11 @@
 #ifndef _PROC_H
 #define _PROC_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+	
 #include "common.h"
-
-
 
 #ifdef _WINDOWS
 typedef DWORD pid_t;
@@ -44,4 +46,7 @@ typedef struct{
 int z_proc_create(z_proc_t *proc_t, const char *progname, const char * const *args, z_procattr_t *attr);
 int z_proc_wait(z_proc_t *proc, int waithow);
 
+#ifdef __cplusplus
+}
+#endif
 #endif

@@ -1,7 +1,11 @@
 #include "file.h"
+#include "common.h"
 #include <stdio.h>
+
 #ifdef _WINDOWS
 #include <Windows.h>
+#elif __linux__
+#include <unistd.h>
 #endif
 
 int z_is_file_exist(const char *file)
@@ -14,6 +18,8 @@ int z_is_file_exist(const char *file)
 	else {
 		return -1;
 	}
+#elif __linux__
+	return access(file, F_OK);
 #endif
 }
 
@@ -85,41 +91,37 @@ int z_file_size(const char *filename)
 	return bytesread;
 }
 
-char *z_nextline(char **buf) {
-	char *crlf = NULL, *line = NULL;
-
-	if (!buf || !(*buf) || !(**buf)) return NULL;
-
-	crlf = strstr(*buf, "\r\n");
-	if (!crlf) {
-		line = *buf;
-		*buf = NULL;
-		return line;
+int z_delete_file(const char *path)
+{
+#ifdef _WIN32
+	if (DeleteFile(path)) {
+		return 0;
 	}
-	else {
-		*crlf = '\0';
-		line = *buf;
-		*buf = crlf += 2;
-		return line;
+	return -1;
+#elif __linux__
+	if (unlink(path) == 0) {
+		return 0;
 	}
+	return -1;
+#endif
 }
 
-int z_strendswith(char *dest, const char *sep) {
-	char *p = dest;
-	
-	if (dest == NULL || sep == NULL) return -1;
+char* z_full_path(const char *relative_path, char *fullpath, int full_len)
+{
+#ifdef _WIN32
+	return _fullpath(fullpath, relative_path, full_len);
+#else
+	return realpath(relative_path, fullpath);
+#endif
+}
 
-	while (*p) p++;
-	p--;
-	while (*sep) sep++;
-	sep--;
-
-	while (*p && *sep) {
-		if (*p-- != *sep--) {
-			return -1;
-		}
+int z_file_rename(const char *oldname, const char *newname)
+{
+#ifdef _WIN32
+	if (GetFileAttributes(oldname) != -1) {
+		MoveFileEx(oldname, newname, MOVEFILE_REPLACE_EXISTING);
 	}
-	if (*sep == '\0') return 0;
-	
-	return -1;
+#elif __linux__
+	rename(oldname, newname);
+#endif
 }

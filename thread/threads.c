@@ -54,6 +54,11 @@ Z_THREAD_HANDLE	z_thread_start(zbx_thread_args_t *thread_args)
 	return thread;
 }
 
+Z_THREAD_HANDLE	z_thread_start2(Z_THREAD_ENTRY_POINTER(entry), void *args)
+{
+	
+}
+
 int	z_thread_wait(Z_THREAD_HANDLE thread)
 {
 	int	status = 0;	/* significant 8 bits of the status */
